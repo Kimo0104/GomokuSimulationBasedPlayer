@@ -6,6 +6,7 @@ Parts of this code were originally based on the gtp module
 in the Deep-Go project by Isaac Henrion and Amos Storkey 
 at the University of Edinburgh.
 """
+from Gomoku3 import FlatMCSimPlayer
 import traceback
 from sys import stdin, stdout, stderr
 from board_util import (
@@ -40,6 +41,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
+        self.player = FlatMCSimPlayer(10, self.board)
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -51,7 +53,11 @@ class GtpConnection:
             "version": self.version_cmd,
             "known_command": self.known_command_cmd,
             "genmove": self.genmove_cmd,
+<<<<<<< Updated upstream
             "policy": self.setPolicy,
+=======
+            "policy_moves": self.policy_moves_cmd,
+>>>>>>> Stashed changes
             "list_commands": self.list_commands_cmd,
             "play": self.play_cmd,
             "legal_moves": self.legal_moves_cmd,
@@ -363,7 +369,7 @@ class GtpConnection:
             self.respond("pass")      
 
         else:
-            move = self.go_engine.get_move(self.board, color)
+            move = self.player.get_rule_move(self.board, color, self.policy)
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord).lower()
             if self.board.is_legal(move, color):
@@ -375,6 +381,7 @@ class GtpConnection:
                 return
 
         self.board.current_player = GoBoardUtil.opponent(color)
+<<<<<<< Updated upstream
     
     def setPolicy(self,args):
         policy=args[0]
@@ -383,6 +390,25 @@ class GtpConnection:
             self.respond()
         else:
             self.respond("Usage: policy [policytype] , where policytype = random or policytype = rulebased")
+=======
+
+    def policy_moves_cmd(self):
+        self.player.set_board(self.board)
+        moves_dic = self.player.rules(self.board.current_player)
+        if moves_dic == "pass":
+            self.respond(moves_dic)
+        else:
+            for rule, moves in moves_dic:
+                string = rule + " "
+                for move in move:  
+                    move_coord = point_to_coord(move, self.board.size)
+                    move_as_string = format_point(move_coord).lower()
+                    string += move_as_string
+                    string += " "
+                string = string[:len(string)-1]
+            self.respond("")
+
+>>>>>>> Stashed changes
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
