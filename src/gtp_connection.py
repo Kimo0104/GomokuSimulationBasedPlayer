@@ -317,6 +317,9 @@ class GtpConnection:
             if self.board.get_empty_points().size == 0:
                 self.result = "draw"
 
+    def getResult(self):
+        return self.result
+
     def check_direction(self, color, pos, direction):
         first_coord = direction[0]
         if len(direction)>1:

@@ -41,6 +41,8 @@ class GoBoard(object):
         """
         assert 2 <= size <= MAXSIZE
         self.reset(size)
+        self.increments = {"N":-self.size-1, "NW":-self.size-2, "W":-1, "SW":self.size, 
+                           "S":self.size+1, "SE":self.size+2, "E":1, "NE":-self.size}
 
     def reset(self, size):
         """
@@ -55,6 +57,8 @@ class GoBoard(object):
         self.maxpoint = size * size + 3 * (size + 1)
         self.board = np.full(self.maxpoint, BORDER, dtype=GO_POINT)
         self._initialize_empty_points(self.board)
+        self.increments = {"N":-self.size-1, "NW":-self.size-2, "W":-1, "SW":self.size, 
+                           "S":self.size+1, "SE":self.size+2, "E":1, "NE":-self.size}
 
     def copy(self):
         b = GoBoard(self.size)
@@ -211,6 +215,15 @@ class GoBoard(object):
 
         self.board[point] = color
         return True
+    
+    def undo_move(self,point):
+        '''
+        Un - does move
+        '''
+        if self.board[point] == EMPTY:
+            return False
+        self.board[point]=EMPTY
+        return True
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
@@ -243,4 +256,32 @@ class GoBoard(object):
             board_moves.append(self.last_move)
         if self.last2_move != None and self.last2_move != PASS:
             board_moves.append(self.last2_move)
-            return 
+            return
+ 
+    def get_result(self, color, move, win_condition):
+        dirs = {"N":0, "S":0, "NE":0, "SW":0, "E":0, "W":0, "SE":0, "NW":0}
+        check = 0
+        for key in dirs:
+            check += 1
+            dirs[key] = self.check_direction(color, move, key)
+
+            if check%2==0 and win_condition-1 <= \
+                max(dirs["N"]+dirs["S"], dirs["NE"]+dirs["SW"], dirs["E"]+dirs["W"], dirs["SE"]+dirs["NW"]):
+                if color == 1:
+                    return "black"
+                else:
+                    return "white"
+
+        if self.get_empty_points().size == 0:
+            return "draw"
+        return "unknown"
+
+    def check_direction(self, color, pos, direction):
+        increment = self.increments[direction]
+
+        num = 0
+        while self.get_color(pos+increment) == color:
+            pos += increment
+            num += 1
+
+        return num

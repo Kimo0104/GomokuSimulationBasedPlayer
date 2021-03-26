@@ -129,7 +129,7 @@ class GoBoardUtil(object):
 
 
     @staticmethod
-    def generate_random_move(board, color, use_eye_filter):
+    def generate_random_move(board, color):
         """
         Generate a random move.
         Return PASS if no move found
