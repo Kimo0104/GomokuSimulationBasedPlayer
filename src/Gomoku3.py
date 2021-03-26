@@ -79,12 +79,12 @@ class FlatMCSimPlayer:
         block_open_four = []
         random = []
 
-        for move in self.board.get_empty_points:
+        for move in self.board.get_empty_points():
             for two_directions in [["N","S"], ["NE","SW"], ["E","W"], ["SE","NW"]]:
                 stats = self.line_rule(color, move, two_directions)
                 if stats["win"]:
                     win.append(move)
-                elif stats["block"]:
+                elif stats["block_win"]:
                     block.append(move)
                 elif stats["open_four"]:
                     block.append(move)

@@ -387,15 +387,15 @@ class GtpConnection:
         else:
             self.respond("Usage: policy [policytype] , where policytype = random or policytype = rulebased")
 
-    def policy_moves_cmd(self):
+    def policy_moves_cmd(self,args):
         self.player.set_board(self.board)
         moves_dic = self.player.rules(self.board.current_player)
         if moves_dic == "pass":
             self.respond(moves_dic)
         else:
-            for rule, moves in moves_dic:
+            for rule, moves in moves_dic.items():
                 string = rule + " "
-                for move in move:  
+                for move in moves:  
                     move_coord = point_to_coord(move, self.board.size)
                     move_as_string = format_point(move_coord).lower()
                     string += move_as_string
