@@ -133,11 +133,12 @@ class FlatMCSimPlayer:
         while (pos_color!=BORDER and l_open<=1):
             if pos_color == color:
                 l_mine += 1
-                if l_theirs >= 1:
+                if l_theirs >= 1 or l_open >= 2:
                     break
             elif pos_color == EMPTY:
                 l_open += 1
-                break
+                if l_mine >= 1:
+                    break
             else:
                 l_theirs += 1
                 if l_mine >= 1:
@@ -156,7 +157,8 @@ class FlatMCSimPlayer:
                     break
             elif pos_color == EMPTY:
                 r_open += 1
-                break
+                if r_mine >= 1 or r_open >= 2:
+                    break
             else:
                 r_theirs += 1
                 if r_mine >= 1:
