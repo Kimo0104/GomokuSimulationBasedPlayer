@@ -1,4 +1,3 @@
-from gtp_connection import GtpConnection
 from board_util import (
     GoBoardUtil,
     BLACK,
