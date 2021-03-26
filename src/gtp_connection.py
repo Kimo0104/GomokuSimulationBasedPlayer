@@ -400,10 +400,10 @@ class GtpConnection:
                 #
                 for column in range(self.board.size):
                     letter = chr(column+ord("a"))
-                    for move in moves:  
+                    for move in moves:
+                        move = point_to_coord(move, self.board.size)
+                        move = format_point(move).lower()  
                         if move[0] == letter:
-                            move = point_to_coord(move, self.board.size)
-                            move = format_point(move).lower()
                             string += move
                             string += " "
                 #
