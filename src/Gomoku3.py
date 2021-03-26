@@ -18,7 +18,8 @@ class FlatMCSimPlayer:
         self.numSimulations=numSimulations
         self.board=board
 
-    def startSimulation(self,board_color,policy="random"):
+    def startSimulation(self,board,board_color,policy="random"):
+        self.board=board
         color = self.color_to_int(board_color)
         legalMoves = GoBoardUtil.generate_legal_moves(self.board,color)
         numLegalMoves=len(legalMoves)
@@ -30,6 +31,7 @@ class FlatMCSimPlayer:
         bestMove=max(scores, key=scores.get)
         print(bestMove)
         return bestMove
+
     def simulate(self,move,color,policy='random'):
         stats = {'black':0 , 'white':0, 'draw':0}
         movesMade=[]
