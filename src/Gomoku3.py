@@ -85,6 +85,7 @@ class FlatMCSimPlayer:
                 stats = self.line_rule(color, move, two_directions)
                 if stats["win"]:
                     best = 1
+                    break
                 elif stats["block_win"]:
                     if best > 2:
                         best=2
@@ -142,6 +143,9 @@ class FlatMCSimPlayer:
                 if l_mine >= 1:
                     break
 
+            next_pos += increment
+            pos_color = self.board.get_color(next_pos)
+
         increment = self.board.increments[two_directions[1]]
         next_pos = pos+increment
         pos_color = self.board.get_color(next_pos)
@@ -158,6 +162,9 @@ class FlatMCSimPlayer:
                 r_theirs += 1
                 if r_mine >= 1:
                     break
+                
+            next_pos += increment
+            pos_color = self.board.get_color(next_pos)
 
         stats = {"win":False, "block_win":False, "open_four":False, "block_open_four":False}
 
