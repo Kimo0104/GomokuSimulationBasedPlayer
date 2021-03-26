@@ -156,8 +156,7 @@ class FlatMCSimPlayer:
                     break
             elif pos_color == EMPTY:
                 r_open += 1
-                if r_mine+l_theirs >= 1:
-                    break
+                break
             else:
                 r_theirs += 1
                 if r_mine >= 1:
