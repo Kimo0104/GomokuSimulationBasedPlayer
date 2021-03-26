@@ -366,7 +366,9 @@ class GtpConnection:
             self.respond("pass")      
 
         else:
-            move = self.player.get_rule_move(self.board, color, self.policy)
+            self.player.set_board(self.board)
+            move = self.player.get_rule_move(color)
+
             move_coord = point_to_coord(move, self.board.size)
             move_as_string = format_point(move_coord).lower()
             if self.board.is_legal(move, color):
@@ -391,16 +393,20 @@ class GtpConnection:
         self.player.set_board(self.board)
         moves_dic = self.player.rules(self.board.current_player)
         if moves_dic == "pass":
-            self.respond(moves_dic)
+            self.respond("")
         else:
             for rule, moves in moves_dic.items():
                 string = rule + " "
-                for move in moves:  
-                    move_coord = point_to_coord(move, self.board.size)
-                    move_as_string = format_point(move_coord).lower()
-                    string += move_as_string
-                    string += " "
-                string = string[:len(string)-1]
+
+                for column in range(self.board.get_size()):
+                    letter = chr(column+ord("a"))
+                    for coord in moves:
+                        if coord[0] == letter:
+                            string += coord.upper()+" "
+
+                if len(string)>0:
+                    string = string[0:len(string)-1]
+
             self.respond(string)
 
     """

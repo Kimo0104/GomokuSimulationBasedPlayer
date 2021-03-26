@@ -66,7 +66,7 @@ class FlatMCSimPlayer:
         print(str(GoBoardUtil.get_twoD_board(self.board)))
 
     def get_rule_move(self, color):
-        moves = self.rules(color).items()[1]
+        moves = list(self.rules(color).values())[0]
         random.shuffle(moves)
         if len(moves) == 0:
             return "draw"
@@ -110,7 +110,7 @@ class FlatMCSimPlayer:
         if len(win) > 0:
             return {"Win":win}
         if len(block) > 0:
-            return {"Block":block}
+            return {"BlockWin":block}
         if len(open_four) > 0:
             return {"OpenFour":open_four}
         if len(block_open_four):
@@ -156,7 +156,8 @@ class FlatMCSimPlayer:
                     break
             elif pos_color == EMPTY:
                 r_open += 1
-                break
+                if r_mine+l_theirs >= 1:
+                    break
             else:
                 r_theirs += 1
                 if r_mine >= 1:
