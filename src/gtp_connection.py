@@ -394,13 +394,26 @@ class GtpConnection:
         if moves_dic == "pass":
             self.respond("")
         else:
+            
             for rule, moves in moves_dic.items():
                 string = rule + " "
+                #
+                for column in range(self.board.size):
+                    letter = chr(column+ord("a"))
+                    for move in moves:  
+                        if move[0] == letter:
+                            move = point_to_coord(move, self.board.size)
+                            move = format_point(move).lower()
+                            string += move
+                            string += " "
+                #
+                """
                 for move in moves:  
                     move_coord = point_to_coord(move, self.board.size)
                     move_as_string = format_point(move_coord).lower()
                     string += move_as_string
                     string += " "
+                """
                 string = string[:len(string)-1]
             self.respond(string)
 
