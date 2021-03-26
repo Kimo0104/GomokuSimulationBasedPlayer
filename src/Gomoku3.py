@@ -18,14 +18,14 @@ class FlatMCSimPlayer:
         self.numSimulations=numSimulations
         self.board=board
 
-    def startSimulation(self,board_color):
+    def startSimulation(self,board_color,policy="random"):
         color = self.color_to_int(board_color)
         legalMoves = GoBoardUtil.generate_legal_moves(self.board,color)
         numLegalMoves=len(legalMoves)
         scores={}
         for i in range (len(legalMoves)):
             move = legalMoves[i]
-            scores[i] = self.simulate(move,color)
+            scores[i] = self.simulate(move,color,policy)
         print(scores)
         bestMove=max(scores, key=scores.get)
         print(bestMove)
