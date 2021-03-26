@@ -17,37 +17,45 @@ class FlatMCSimPlayer:
     def __init__(self,numSimulations,board):
         self.numSimulations=numSimulations
         self.board=board
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     def startSimulation(self,board_color):
         color = self.color_to_int(board_color)
         legalMoves = GoBoardUtil.generate_legal_moves(self.board,color)
         numLegalMoves=len(legalMoves)
-        scores = [0] * numLegalMoves
+        scores={}
         for i in range (len(legalMoves)):
             move = legalMoves[i]
             scores[i] = self.simulate(move,color)
-            break
-
+        print(scores)
+        bestMove=max(scores, key=scores.get)
+        print(bestMove)
+        return bestMove
     def simulate(self,move,color):
-        stats = {'b':0 , 'w':0, 'd':0}
+        stats = {'black':0 , 'white':0, 'draw':0}
         movesMade=[]
         #Append move which will start the simulation
-
         self.board.play_move(move,color)
         color=GoBoardUtil.opponent(color)
         movesMade.append(move)
-        for i in range(self.numSimulations):
+        for i in range (self.numSimulations):
             while self.board.get_result(color,move,5)=='unknown':
                 move=GoBoardUtil.generate_random_move(self.board,color)
                 self.board.play_move(move,color)
                 color=GoBoardUtil.opponent(color)
                 movesMade.append(move)
-            print(self.board.get_result(color,move,5))
-        self.board2d()
-
-        for moveMade in movesMade:
-            self.board.undo_move(moveMade)
-
+            stats[self.board.get_result(color,move,5)]+=1
+            for moveMade in movesMade:
+                self.board.undo_move(moveMade)
+            movesMade=[]
+        if self.board.current_player==BLACK:
+            eval=( ( stats['black'] + ( 0.5 * stats['draw'] ) ) / self.numSimulations )
+        elif self.board.current_player==WHITE:
+            eval=( ( stats['white'] + ( 0.5 * stats['draw'] ) ) / self.numSimulations )
+        return eval
+    
     def color_to_int(self,c):
         """convert character to the appropriate integer code"""
         color_to_int = {"b": BLACK, "w": WHITE, "e": EMPTY, "BORDER": BORDER}
