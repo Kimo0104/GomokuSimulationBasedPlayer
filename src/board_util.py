@@ -54,6 +54,11 @@ of elements that fulfill the condition.
 For 1-d arrays, this is a singleton tuple.
 The [0] indexing is needed to extract the result from the singleton tuple.
 """
+"""
+Length of streak to win
+"""
+WIN_CONDITION = 5
+
 def where1d(condition):
     return np.where(condition)[0]
 
@@ -120,15 +125,11 @@ class GoBoardUtil(object):
         color : {'b','w'}
             the color to generate the move for.
         """
-        moves = board.get_empty_points()
-        legal_moves = []
-        for move in moves:
-            if board.is_legal(move, color):
-                legal_moves.append(move)
-        return legal_moves
+        return board.get_empty_points().tolist()
+
 
     @staticmethod
-    def generate_random_move(board, color):
+    def generate_random_move(board, color, use_eye_filter):
         """
         Generate a random move.
         Return PASS if no move found
@@ -141,26 +142,25 @@ class GoBoardUtil(object):
             the color to generate the move for.
         """
         moves = board.get_empty_points()
-        if len(moves) == 0:
-            return PASS
         np.random.shuffle(moves)
-        return moves[0]
+        for move in moves:
+            return move
 
-    @staticmethod
-    def generate_random_moves(board, use_eye_filter):
-        """
-        Return a list of random (legal) moves with eye-filtering.
-        """
-        empty_points = board.get_empty_points()
-        color = board.current_player
-        moves = []
-        for move in empty_points:
-            legal = not (
-                use_eye_filter and board.is_eye(move, color)
-            ) and board.is_legal(move, color)
-            if legal:
-                moves.append(move)
-        return moves
+    # @staticmethod
+    # def generate_random_moves(board, use_eye_filter):
+    #     """
+    #     Return a list of random (legal) moves with eye-filtering.
+    #     """
+    #     empty_points = board.get_empty_points()
+    #     color = board.current_player
+    #     moves = []
+    #     for move in empty_points:
+    #         legal = not (
+    #             use_eye_filter and board.is_eye(move, color)
+    #         ) and board.is_legal(move, color)
+    #         if legal:
+    #             moves.append(move)
+    #     return moves
 
     @staticmethod
     def opponent(color):

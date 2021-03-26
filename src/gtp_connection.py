@@ -17,6 +17,7 @@ from board_util import (
     PASS,
     MAXSIZE,
     coord_to_point,
+    WIN_CONDITION
 )
 import numpy as np
 import re
@@ -30,10 +31,11 @@ class GtpConnection:
         Parameters
         ----------
         go_engine:
-            a program that can reply to a set of GTP commandsbelow
+            a program that can reply to a set of GTP commands below
         board: 
             Represents the current board state.
         """
+        self.result = "unknown"
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
@@ -174,6 +176,7 @@ class GtpConnection:
     def clear_board_cmd(self, args):
         """ clear the board """
         self.reset(self.board.size)
+        self.result = "unknown"
         self.respond()
 
     def boardsize_cmd(self, args):
@@ -182,6 +185,196 @@ class GtpConnection:
         """
         self.reset(int(args[0]))
         self.respond()
+
+        """
+    ==========================================================================
+    Assignment 1 - game-specific commands start here
+    ==========================================================================
+    """
+
+    def gogui_analyze_cmd(self, args):
+        """ We already implemented this function for Assignment 1 """
+        self.respond("pstring/Legal Moves For ToPlay/gogui-rules_legal_moves\n"
+                     "pstring/Side to Play/gogui-rules_side_to_move\n"
+                     "pstring/Final Result/gogui-rules_final_result\n"
+                     "pstring/Board Size/gogui-rules_board_size\n"
+                     "pstring/Rules GameID/gogui-rules_game_id\n"
+                     "pstring/Show Board/gogui-rules_board\n"
+                     )
+
+    def gogui_rules_game_id_cmd(self, args):
+        """ We already implemented this function for Assignment 1 """
+        self.respond("Gomoku")
+
+    def gogui_rules_board_size_cmd(self, args):
+        """ We already implemented this function for Assignment 1 """
+        self.respond(str(self.board.size))
+
+    def gogui_rules_legal_moves_cmd(self, args):
+        """ Implement this function for Assignment 1 """
+        string = ""
+        if self.result == "unknown":
+            empty_points = self.board.get_empty_points()
+            coords = []
+            for point in empty_points:
+                coords.append(self.board.coord(point))
+
+            for column in range(self.board.get_size()):
+                letter = chr(column+ord("A"))
+                for coord in coords:
+                    if coord[0] == letter:
+                        string += coord.upper()+" "
+
+            if len(string)>0:
+                string = string[0:len(string)-1]
+
+        self.respond(string)
+
+    def gogui_rules_side_to_move_cmd(self, args):
+        """ We already implemented this function for Assignment 1 """
+        color = "black" if self.board.current_player == BLACK else "white"
+        self.respond(color)
+
+    def gogui_rules_board_cmd(self, args):
+        """ We already implemented this function for Assignment 1 """
+        size = self.board.size
+        str = ''
+        for row in range(size-1, -1, -1):
+            start = self.board.row_start(row + 1)
+            for i in range(size):
+                #str += '.'
+                point = self.board.board[start + i]
+                if point == BLACK:
+                    str += 'X'
+                elif point == WHITE:
+                    str += 'O'
+                elif point == EMPTY:
+                    str += '.'
+                else:
+                    assert False
+            str += '\n'
+        self.respond(str)
+            
+    def gogui_rules_final_result_cmd(self, args):
+        """ Implement this function for Assignment 1 """
+
+        self.respond(self.result)
+
+    def play_cmd(self, args):
+        """ Modify this function for Assignment 1 """
+        """
+        play a move args[1] for given color args[0] in {'b','w'}
+        """
+        try:
+            board_color = args[0].lower()
+            board_move = args[1]
+
+            if board_color not in ['b', 'w']:
+                self.respond('illegal move: "{}" wrong color'.format(board_color))
+                return
+
+            coord = move_to_coord(args[1], self.board.size)
+            if coord:
+                move = coord_to_point(coord[0], coord[1], self.board.size)
+            else:
+                self.respond('illegal move: "{}" wrong coordinate'.format(self.board.coord(move)))
+                return
+
+            color = color_to_int(board_color)
+            if args[1].lower() == "pass":
+                self.board.play_move(PASS, color)
+                self.board.current_player = GoBoardUtil.opponent(color)
+                self.respond()
+                return
+            
+            if not self.board.play_move(move, color):
+                self.respond('illegal move: "{}" occupied'.format(self.board.coord(move)))
+                return
+            else:
+                self.debug_msg(
+                    "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
+                )
+            self.respond()
+            self.board.current_player = GoBoardUtil.opponent(color)
+            self.update_result(color, move)
+        except Exception:
+            self.respond('illegal move: "{}" wrong coordinate'.format(board_move.lower()))
+
+    def update_result(self, color, move):
+        if self.result == "unknown" or self.result == "draw":
+            dirs = {"N":0, "NW":0, "W":0, "SW":0, "S":0, "SE":0, "E":0, "NE":0}
+            for key in dirs:
+                dirs[key] = self.check_direction(color, move, key)
+
+            if WIN_CONDITION-1 <= \
+                max(dirs["N"]+dirs["S"], dirs["NE"]+dirs["SW"], dirs["E"]+dirs["W"], dirs["SE"]+dirs["NW"]):
+                if color == 1:
+                    self.result = "black"
+                else:
+                    self.result = "white"
+                return
+ 
+            if self.board.get_empty_points().size == 0:
+                self.result = "draw"
+
+    def check_direction(self, color, pos, direction):
+        first_coord = direction[0]
+        if len(direction)>1:
+            second_coord = direction[1]
+        else:
+            second_coord = None
+
+        increment = 0
+        for coord in [first_coord, second_coord]:
+            if coord == "E":
+                increment += 1
+            elif coord == "W":
+                increment -= 1
+            elif coord == "N":
+                increment -= self.board.get_size()+1
+            elif coord == "S":
+                increment += self.board.get_size()+1
+
+        num = 0
+        while self.board.get_color(pos+increment) == color:
+            pos += increment
+            num += 1
+
+        return num
+
+    def genmove_cmd(self, args):
+        """ Modify this function for Assignment 1 """
+        """ generate a move for color args[0] in {'b','w'} """
+        board_color = args[0].lower()
+        color = color_to_int(board_color)
+        if (color == BLACK and self.result == "white")\
+           or (color == WHITE and self.result == "black"):
+            self.respond("resign")
+
+        elif self.result == "draw"\
+             or color == BLACK and self.result == "black"\
+             or color == WHITE and self.result == "white":
+            self.respond("pass")      
+
+        else:
+            move = self.go_engine.get_move(self.board, color)
+            move_coord = point_to_coord(move, self.board.size)
+            move_as_string = format_point(move_coord).lower()
+            if self.board.is_legal(move, color):
+                self.board.play_move(move, color)
+                self.update_result(color, move)
+                self.respond(move_as_string)
+            else:
+                self.respond("illegal move: {}".format(move_as_string))
+                return
+
+        self.board.current_player = GoBoardUtil.opponent(color)
+
+    """
+    ==========================================================================
+    Assignment 1 - game-specific commands end here
+    ==========================================================================
+    """
 
     def showboard_cmd(self, args):
         self.respond("\n" + self.board2d())
@@ -206,6 +399,8 @@ class GtpConnection:
         """ list all supported GTP commands """
         self.respond(" ".join(list(self.commands.keys())))
 
+    """ Assignment 1: ignore this command, implement 
+        gogui_rules_legal_moves_cmd  above instead """
     def legal_moves_cmd(self, args):
         """
         List legal moves for color args[0] in {'b','w'}
@@ -219,124 +414,7 @@ class GtpConnection:
             gtp_moves.append(format_point(coords))
         sorted_moves = " ".join(sorted(gtp_moves))
         self.respond(sorted_moves)
-        
-    def play_cmd(self, args):
-        """
-        play a move args[1] for given color args[0] in {'b','w'}
-        """
-        try:
-            board_color = args[0].lower()
-            board_move = args[1]
-            color = color_to_int(board_color)
-            if args[1].lower() == "pass":
-                self.board.play_move(PASS, color)
-                self.board.current_player = GoBoardUtil.opponent(color)
-                self.respond()
-                return
-            coord = move_to_coord(args[1], self.board.size)
-            if coord:
-                move = coord_to_point(coord[0], coord[1], self.board.size)
-            else:
-                self.respond("unknown: {}".format(args[1]))
-                return
-            if not self.board.play_move(move, color):
-                self.respond("illegal move: \"{}\" occupied".format(args[1].lower()))
-                return
-            else:
-                self.debug_msg(
-                    "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
-                )
-            self.respond()
-        except Exception as e:
-            self.respond("illegal move: {}".format(str(e).replace('\'','')))
-    
-    def genmove_cmd(self, args):
-        """
-        Generate a move for the color args[0] in {'b', 'w'}, for the game of gomoku.
-        """
-        result = self.board.detect_five_in_a_row()
-        if result == GoBoardUtil.opponent(self.board.current_player):
-            self.respond("resign")
-            return
-        if self.board.get_empty_points().size == 0:
-            self.respond("pass")
-            return
-        board_color = args[0].lower()
-        color = color_to_int(board_color)
-        move = self.go_engine.get_move(self.board, color)
-        move_coord = point_to_coord(move, self.board.size)
-        move_as_string = format_point(move_coord)
-        if self.board.is_legal(move, color):
-            self.board.play_move(move, color)
-            self.respond(move_as_string.lower())
-        else:
-            self.respond("Illegal move: {}".format(move_as_string))
 
-    def gogui_rules_game_id_cmd(self, args):
-        self.respond("Gomoku")
-
-    def gogui_rules_board_size_cmd(self, args):
-        self.respond(str(self.board.size))
-
-    def gogui_rules_legal_moves_cmd(self, args):
-        if self.board.detect_five_in_a_row() != EMPTY:
-            self.respond("")
-            return
-        empty = self.board.get_empty_points()
-        output = []
-        for move in empty:
-            move_coord = point_to_coord(move, self.board.size)
-            output.append(format_point(move_coord))
-        output.sort()
-        output_str = ""
-        for i in output:
-            output_str = output_str + i + " "
-        self.respond(output_str.lower())
-        return
-
-    def gogui_rules_side_to_move_cmd(self, args):
-        color = "black" if self.board.current_player == BLACK else "white"
-        self.respond(color)
-
-    def gogui_rules_board_cmd(self, args):
-        size = self.board.size
-        str = ''
-        for row in range(size-1, -1, -1):
-            start = self.board.row_start(row + 1)
-            for i in range(size):
-                #str += '.'
-                point = self.board.board[start + i]
-                if point == BLACK:
-                    str += 'X'
-                elif point == WHITE:
-                    str += 'O'
-                elif point == EMPTY:
-                    str += '.'
-                else:
-                    assert False
-            str += '\n'
-        self.respond(str)
-
-    def gogui_rules_final_result_cmd(self, args):
-        if self.board.get_empty_points().size == 0:
-            self.respond("draw")
-            return
-        result = self.board.detect_five_in_a_row()
-        if result == BLACK:
-            self.respond("black")
-        elif result == WHITE:
-            self.respond("white")
-        else:
-            self.respond("unknown")
-
-    def gogui_analyze_cmd(self, args):
-        self.respond("pstring/Legal Moves For ToPlay/gogui-rules_legal_moves\n"
-                     "pstring/Side to Play/gogui-rules_side_to_move\n"
-                     "pstring/Final Result/gogui-rules_final_result\n"
-                     "pstring/Board Size/gogui-rules_board_size\n"
-                     "pstring/Rules GameID/gogui-rules_game_id\n"
-                     "pstring/Show Board/gogui-rules_board\n"
-                     )
 
 def point_to_coord(point, boardsize):
     """
@@ -371,6 +449,7 @@ def move_to_coord(point_str, board_size):
     to a pair of coordinates (row, col) in range 1 .. board_size.
     Raises ValueError if point_str is invalid
     """
+
     if not 2 <= board_size <= MAXSIZE:
         raise ValueError("board_size out of range")
     s = point_str.lower()
@@ -389,15 +468,11 @@ def move_to_coord(point_str, board_size):
     except (IndexError, ValueError):
         raise ValueError("invalid point: '{}'".format(s))
     if not (col <= board_size and row <= board_size):
-        raise ValueError("\"{}\" wrong coordinate".format(s))
+        raise ValueError("point off board: '{}'".format(s))
     return row, col
 
 
 def color_to_int(c):
     """convert character to the appropriate integer code"""
     color_to_int = {"b": BLACK, "w": WHITE, "e": EMPTY, "BORDER": BORDER}
-    
-    try:
-        return color_to_int[c]
-    except:
-        raise KeyError("\"{}\" wrong color".format(c))
+    return color_to_int[c]
