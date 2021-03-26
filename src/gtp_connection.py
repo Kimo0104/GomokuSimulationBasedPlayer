@@ -401,6 +401,8 @@ class GtpConnection:
                 for column in range(self.board.get_size()):
                     letter = chr(column+ord("a"))
                     for coord in moves:
+                        move_coord = point_to_coord(coord, self.board.size)
+                        coord = format_point(move_coord).lower()
                         if coord[0] == letter:
                             string += coord.upper()+" "
 
