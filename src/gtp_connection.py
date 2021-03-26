@@ -382,7 +382,7 @@ class GtpConnection:
             self.policy=policy
             self.respond()
         else:
-            self.respond("Usage: policy [policytype] , where policy = random or rulebased")
+            self.respond("Usage: policy [policytype] , where policytype = random or policytype = rulebased")
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
