@@ -41,6 +41,8 @@ class FlatMCSimPlayer:
             while self.board.get_result(color,move,5)=='unknown':
                 if policy=='random':
                     move=GoBoardUtil.generate_random_move(self.board,color)
+                elif policy=='rule':
+                    move=self.rule_move(color)
                 self.board.play_move(move,color)
                 color=GoBoardUtil.opponent(color)
                 movesMade.append(move)
