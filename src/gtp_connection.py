@@ -53,11 +53,8 @@ class GtpConnection:
             "version": self.version_cmd,
             "known_command": self.known_command_cmd,
             "genmove": self.genmove_cmd,
-<<<<<<< Updated upstream
             "policy": self.setPolicy,
-=======
             "policy_moves": self.policy_moves_cmd,
->>>>>>> Stashed changes
             "list_commands": self.list_commands_cmd,
             "play": self.play_cmd,
             "legal_moves": self.legal_moves_cmd,
@@ -381,7 +378,6 @@ class GtpConnection:
                 return
 
         self.board.current_player = GoBoardUtil.opponent(color)
-<<<<<<< Updated upstream
     
     def setPolicy(self,args):
         policy=args[0]
@@ -390,7 +386,6 @@ class GtpConnection:
             self.respond()
         else:
             self.respond("Usage: policy [policytype] , where policytype = random or policytype = rulebased")
-=======
 
     def policy_moves_cmd(self):
         self.player.set_board(self.board)
@@ -408,7 +403,6 @@ class GtpConnection:
                 string = string[:len(string)-1]
             self.respond("")
 
->>>>>>> Stashed changes
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
