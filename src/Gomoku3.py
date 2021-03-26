@@ -163,6 +163,9 @@ class FlatMCSimPlayer:
             return stats
 
         return stats
+
+    def set_board(self, board):
+        self.board = board
         
 def run():
     """

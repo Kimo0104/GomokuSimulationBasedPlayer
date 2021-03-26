@@ -401,7 +401,7 @@ class GtpConnection:
                     string += move_as_string
                     string += " "
                 string = string[:len(string)-1]
-            self.respond("")
+            self.respond(string)
 
     """
     ==========================================================================
