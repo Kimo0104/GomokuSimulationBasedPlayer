@@ -17,10 +17,7 @@ class FlatMCSimPlayer:
     def __init__(self,numSimulations,board):
         self.numSimulations=numSimulations
         self.board=board
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
     def startSimulation(self,board_color):
         color = self.color_to_int(board_color)
         legalMoves = GoBoardUtil.generate_legal_moves(self.board,color)
@@ -33,7 +30,7 @@ class FlatMCSimPlayer:
         bestMove=max(scores, key=scores.get)
         print(bestMove)
         return bestMove
-    def simulate(self,move,color):
+    def simulate(self,move,color,policy='random'):
         stats = {'black':0 , 'white':0, 'draw':0}
         movesMade=[]
         #Append move which will start the simulation
@@ -42,7 +39,8 @@ class FlatMCSimPlayer:
         movesMade.append(move)
         for i in range (self.numSimulations):
             while self.board.get_result(color,move,5)=='unknown':
-                move=GoBoardUtil.generate_random_move(self.board,color)
+                if policy=='random':
+                    move=GoBoardUtil.generate_random_move(self.board,color)
                 self.board.play_move(move,color)
                 color=GoBoardUtil.opponent(color)
                 movesMade.append(move)
