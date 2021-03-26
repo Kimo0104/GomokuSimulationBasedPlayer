@@ -35,6 +35,7 @@ class GtpConnection:
         board: 
             Represents the current board state.
         """
+        self.policy="random"
         self.result = "unknown"
         self._debug_mode = debug_mode
         self.go_engine = go_engine
@@ -50,6 +51,7 @@ class GtpConnection:
             "version": self.version_cmd,
             "known_command": self.known_command_cmd,
             "genmove": self.genmove_cmd,
+            "policy": self.setPolicy,
             "list_commands": self.list_commands_cmd,
             "play": self.play_cmd,
             "legal_moves": self.legal_moves_cmd,
@@ -72,6 +74,7 @@ class GtpConnection:
             "genmove": (1, "Usage: genmove {w,b}"),
             "play": (2, "Usage: play {b,w} MOVE"),
             "legal_moves": (1, "Usage: legal_moves {w,b}"),
+            "policy":(1,"Usage: policy [policytype]")
         }
 
     def write(self, data):
@@ -372,7 +375,14 @@ class GtpConnection:
                 return
 
         self.board.current_player = GoBoardUtil.opponent(color)
-
+    
+    def setPolicy(self,args):
+        policy=args[0]
+        if policy.lower()=='random' or policy.lower()=='rulebased':
+            self.policy=policy
+            self.respond()
+        else:
+            self.respond("Usage: policy [policytype] , where policy = random or rulebased")
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
