@@ -204,7 +204,7 @@ class FlatMCSimPlayer:
                         if open_blocks_open:
                             next_pos += increment
                             pos_color = self.board.get_color(next_pos)
-                            if pos_color == self.board.current_player() or pos_color == BORDER:  
+                            if pos_color == color or pos_color == BORDER:  
                                 stats["block_open_four"] = True
                         else:
                             stats["block_open_four"] = True
