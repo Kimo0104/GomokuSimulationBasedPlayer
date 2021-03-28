@@ -150,8 +150,8 @@ class FlatMCSimPlayer:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
 
-        """
         if pos_color!=BORDER:
+            open_blocks_open = (l_theirs == 0)
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
             while (pos_color != BORDER and l_mine == 0 and l_theirs <= 3):
@@ -159,15 +159,19 @@ class FlatMCSimPlayer:
                     break
                 elif pos_color == EMPTY:
                     if l_theirs+l_theirs_outer == 3:
-                        stats["block_open_four"] = True
+                        if open_blocks_open:
+                            next_pos += increment
+                            pos_color = self.board.get_color(next_pos)
+                            if pos_color == self.board.current_player() or pos_color == BORDER:  
+                                stats["block_open_four"] = True
+                        else:
+                            stats["block_open_four"] = True
                     break
                 else:
                     l_theirs_outer += 1
 
                 next_pos += increment
                 pos_color = self.board.get_color(next_pos)
-        """
-
 
         increment = self.board.increments[two_directions[1]]
         next_pos = pos+increment
@@ -188,8 +192,8 @@ class FlatMCSimPlayer:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
 
-        """
         if pos_color!=BORDER:
+            open_blocks_open = (r_theirs == 0)
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
             while (pos_color != BORDER and r_mine == 0 and r_theirs <= 3):
@@ -197,15 +201,19 @@ class FlatMCSimPlayer:
                     break
                 elif pos_color == EMPTY:
                     if r_theirs+r_theirs_outer == 3:
-                        stats["block_open_four"] = True
+                        if open_blocks_open:
+                            next_pos += increment
+                            pos_color = self.board.get_color(next_pos)
+                            if pos_color == self.board.current_player() or pos_color == BORDER:  
+                                stats["block_open_four"] = True
+                        else:
+                            stats["block_open_four"] = True
                     break
                 else:
                     r_theirs_outer += 1
 
                 next_pos += increment
                 pos_color = self.board.get_color(next_pos)
-        """
-
 
         if l_mine + r_mine >= 4:
             stats["win"] = True
