@@ -150,6 +150,7 @@ class FlatMCSimPlayer:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
 
+        """
         if pos_color!=BORDER:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
@@ -165,6 +166,7 @@ class FlatMCSimPlayer:
 
                 next_pos += increment
                 pos_color = self.board.get_color(next_pos)
+        """
 
 
         increment = self.board.increments[two_directions[1]]
@@ -186,6 +188,7 @@ class FlatMCSimPlayer:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
 
+        """
         if pos_color!=BORDER:
             next_pos += increment
             pos_color = self.board.get_color(next_pos)
@@ -201,6 +204,7 @@ class FlatMCSimPlayer:
 
                 next_pos += increment
                 pos_color = self.board.get_color(next_pos)
+        """
 
 
         if l_mine + r_mine >= 4:
