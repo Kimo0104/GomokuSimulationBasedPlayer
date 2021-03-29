@@ -6,7 +6,7 @@ Parts of this code were originally based on the gtp module
 in the Deep-Go project by Isaac Henrion and Amos Storkey 
 at the University of Edinburgh.
 """
-from Gomoku3 import FlatMCSimPlayer
+#from Gomoku3 import FlatMCSimPlayer
 import traceback
 from sys import stdin, stdout, stderr
 from board_util import (
@@ -41,7 +41,7 @@ class GtpConnection:
         self._debug_mode = debug_mode
         self.go_engine = go_engine
         self.board = board
-        self.player = FlatMCSimPlayer(10, self.board)
+        self.player = go_engine
         self.commands = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -406,7 +406,6 @@ class GtpConnection:
                         if move[0] == letter:
                             string += move
                             string += " "
-                #
                 """
                 for move in moves:  
                     move_coord = point_to_coord(move, self.board.size)

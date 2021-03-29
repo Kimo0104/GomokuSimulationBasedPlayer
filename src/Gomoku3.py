@@ -12,10 +12,13 @@ from board_util import (
 from board import GoBoard
 import copy
 import random
+from gtp_connection import GtpConnection
 class FlatMCSimPlayer:
     def __init__(self,numSimulations,board):
         self.numSimulations=numSimulations
         self.board=board
+        self.name = "GomokuAssignment3"
+        self.version = 1.0
 
     def startSimulation(self,board,board_color,policy="random"):
         self.board=board
@@ -238,8 +241,7 @@ def run():
     start the gtp connection and wait for commands.
     """
     board = GoBoard(7)
-    player=FlatMCSimPlayer(10,board)
-    player.startSimulation('b')
-
+    con = GtpConnection(FlatMCSimPlayer(10,board), board)
+    con.start_connection()
 if __name__ == "__main__":
     run()
